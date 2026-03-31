@@ -21,7 +21,8 @@ if os.path.exists("data/base_scraped_headlines.csv"):
     news_df = pd.read_csv("data/base_scraped_headlines.csv")
 else:
     headlines = []
-    for url in base_url_df["url"]:
+    for i, url in enumerate(base_url_df["url"]):
+        print(f"Scraping {i + 1}/{len(base_url_df)}: {url}")
         response = requests.get(url)
         if response.status_code != 200:
             headlines.append({"headline": None, "source": None})
