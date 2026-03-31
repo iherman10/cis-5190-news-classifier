@@ -6,15 +6,16 @@ import os
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
 
 # =============================================================================
-# 1. DATA COLLECTION
+# 1. BASELINE MODEL
 # =============================================================================
 
-# --- Baseline Model ---
+# --- Data Collection ---
 base_url_df = pd.read_csv("data/url_only_data.csv")
 
 if os.path.exists("data/base_scraped_headlines.csv"):
@@ -41,19 +42,17 @@ else:
     news_df.to_csv("data/base_scraped_headlines.csv", index=False)
 
 
-# =============================================================================
-# 2. DATA SPLITTING
-# =============================================================================
+# --- Data Splitting ---
 
 # (80% train, 20% test)
-# ... ...
+news_df = news_df.dropna(subset=["headline", "source"])
+
+X_train, X_test, y_train, y_test = train_test_split(
+    news_df["headline"], news_df["source"], test_size=0.2, random_state=42
+)
 
 
-# =============================================================================
-# 3. DATA CLEANING & PREPROCESSING
-# =============================================================================
-
-# --- Baseline Model ---
+# --- Data Cleaning & Preprocessing ---
 y_train = y_train.apply(lambda x: 1 if x == "FoxNews" else 0)
 y_test = y_test.apply(lambda x: 1 if x == "FoxNews" else 0)
 
@@ -62,22 +61,19 @@ X_train_tfidf = vectorizer.fit_transform(X_train)
 X_test_tfidf = vectorizer.transform(X_test)
 
 
-# =============================================================================
-# 4. MODEL TRAINING
-# =============================================================================
-
-# --- Baseline Model ---
+# --- Model Training ---
 model = LogisticRegression(max_iter=100)
 model.fit(X_train_tfidf, y_train)
 
 y_pred = model.predict(X_test_tfidf)
 
 
-# =============================================================================
-# 5. MODEL EVALUATION
-# =============================================================================
-
-# --- Baseline Model ---
+# --- Model Evaluation ---
 accuracy = accuracy_score(y_test, y_pred)
 print(f"Accuracy: {accuracy:.4f}")
 print("Classification Report:\n", classification_report(y_test, y_pred))
+
+
+# =============================================================================
+# 2. IMPROVED PIPELINE & MODELS
+# =============================================================================
